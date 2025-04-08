@@ -1,0 +1,137 @@
+# Cline Kuralları ve Proje Zekası
+
+Bu dosya, UniNote projesi için önemli kalıpları, tercihleri ve proje zekasını içerir. Bu bilgiler, projeyle daha etkili bir şekilde çalışmama yardımcı olacaktır.
+
+## Kod Stili ve Formatı
+
+### Dart/Flutter Kod Stili
+- İki boşluk girinti kullanılır
+- Maksimum satır uzunluğu 80 karakterdir
+- Dart'ın resmi stil kılavuzu takip edilir: [Effective Dart: Style](https://dart.dev/guides/language/effective-dart/style)
+- Sınıf üyeleri şu sırayla düzenlenir:
+  1. Statik değişkenler
+  2. Instance değişkenleri
+  3. Constructors
+  4. Named constructors
+  5. Factory constructors
+  6. Getters/Setters
+  7. Statik metodlar
+  8. Instance metodları
+  9. @override metodları
+
+### Dosya Organizasyonu
+- Her sınıf kendi dosyasında bulunur
+- Dosya adları snake_case formatında olmalıdır
+- Sınıf adları PascalCase formatında olmalıdır
+- Değişken ve metod adları camelCase formatında olmalıdır
+
+## Mimari Kalıplar
+
+### Katmanlı Mimari
+- Sunum katmanı (screens, widgets)
+- İş mantığı katmanı (services)
+- Veri katmanı (models)
+- Yardımcı katman (utils)
+
+### State Management
+- Provider paketi kullanılır
+- ChangeNotifier sınıfları ile durum yönetimi yapılır
+- UI ve iş mantığı ayrı tutulur
+
+### Bağımlılık Enjeksiyonu
+- GetIt paketi kullanılır
+- Servisler uygulama başlangıcında kaydedilir
+- Singleton deseni tercih edilir
+
+## Kritik Uygulama Yolları
+
+### Kullanıcı Kimlik Doğrulama Akışı
+1. Kullanıcı giriş bilgilerini girer
+2. AuthService, API'ye istek gönderir
+3. Başarılı yanıt durumunda, token güvenli depolamada saklanır
+4. Kullanıcı ana ekrana yönlendirilir
+
+### Not Oluşturma Akışı
+1. Kullanıcı "Yeni Not" butonuna tıklar
+2. Not düzenleme ekranı açılır
+3. Kullanıcı not içeriğini girer ve kaydeder
+4. Not, API'ye gönderilir ve yerel veritabanına kaydedilir
+5. Kullanıcı not listesine yönlendirilir
+
+### PDF Yükleme Akışı
+1. Kullanıcı "PDF Yükle" butonuna tıklar
+2. Dosya seçici açılır
+3. Kullanıcı PDF dosyasını seçer
+4. PDF, API'ye yüklenir ve yerel depolamaya kaydedilir
+5. PDF, kullanıcının kütüphanesine eklenir
+
+## Bilinen Zorluklar ve Çözümleri
+
+### PDF İşleme
+- Büyük PDF dosyaları için kademeli yükleme kullanılmalıdır
+- PDF önizlemeleri önbelleğe alınmalıdır
+- PDF işleme işlemleri arka planda yapılmalıdır
+
+### Çevrimdışı Senkronizasyon
+- Yerel değişiklikler bir kuyrukta saklanmalıdır
+- Çevrimiçi olunduğunda, değişiklikler sırayla senkronize edilmelidir
+- Çakışma durumunda, en son değişiklik tercih edilmelidir
+
+## Kullanıcı Tercihleri ve İş Akışı
+
+### UI Tercihleri
+- Sade ve minimalist tasarım
+- Koyu ve açık tema desteği
+- Duyarlı tasarım (farklı ekran boyutları için)
+
+### İş Akışı Optimizasyonları
+- Sık kullanılan işlemler için kısayollar
+- Otomatik kaydetme özelliği
+- Son kullanılan notlara hızlı erişim
+
+## Proje Geliştirme Kararları
+
+### Teknoloji Seçimleri
+- Flutter: Çoklu platform desteği için
+- Provider: Basit ve etkili durum yönetimi için
+- Dio: Gelişmiş HTTP istek özellikleri için
+- GetIt: Kolay bağımlılık enjeksiyonu için
+
+### Gelecek Planları
+- Offline-first yaklaşımı
+- Gelişmiş PDF işleme özellikleri
+- Çoklu dil desteği
+- Tema özelleştirme seçenekleri
+
+## Araç Kullanım Kalıpları
+
+### Flutter Komutları
+- `flutter run`: Uygulamayı çalıştırmak için
+- `flutter pub get`: Bağımlılıkları yüklemek için
+- `flutter build`: Üretim sürümü oluşturmak için
+- `flutter test`: Testleri çalıştırmak için
+
+### VS Code Eklentileri
+- Dart
+- Flutter
+- Flutter Widget Snippets
+- Awesome Flutter Snippets
+- Better Comments
+
+## Özel Notlar ve İpuçları
+
+### Performans İpuçları
+- Büyük listeler için ListView.builder kullanılmalıdır
+- Gereksiz build işlemlerinden kaçınılmalıdır
+- Ağır işlemler için compute fonksiyonu kullanılmalıdır
+
+### Hata Ayıklama İpuçları
+- Flutter DevTools kullanılmalıdır
+- Performans darboğazları için Timeline görünümü kullanılmalıdır
+- Bellek sızıntıları için Memory görünümü kullanılmalıdır
+
+### Kod Kalitesi İpuçları
+- Düzenli kod incelemeleri yapılmalıdır
+- Lint kuralları takip edilmelidir
+- Kapsamlı dokümantasyon yazılmalıdır
+- Birim testleri yazılmalıdır
