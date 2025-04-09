@@ -1,5 +1,13 @@
 /// Form doğrulama yardımcıları
 class Validators {
+  /// Genel zorunlu alan doğrulama
+  static String? requiredField(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Bu alan boş bırakılamaz';
+    }
+    return null;
+  }
+
   /// E-posta doğrulama
   static String? email(String? value) {
     if (value == null || value.isEmpty) {

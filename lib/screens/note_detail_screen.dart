@@ -3,6 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:uninote/models/note.dart';
 import 'package:uninote/services/note_service.dart';
 import 'package:uninote/widgets/loading_indicator.dart';
+import 'package:uninote/screens/invite_screen.dart';
+import 'package:uninote/services/invite_service.dart';
 
 class NoteDetailScreen extends StatefulWidget {
   final int noteId;
@@ -278,45 +280,17 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
   }
 
   Future<void> _shareNote() async {
-    try {
-      final invite = await _noteService.createInvite(widget.noteId);
-      
-      if (invite != null) {
-        final token = invite['token'] as String;
-        final shareUrl = 'https://uninotes.com/notes/invite/$token';
-        
-        // Paylaşım URL'sini göster
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Notu Paylaş'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('Bu link ile notunuzu paylaşabilirsiniz:'),
-                const SizedBox(height: 10),
-                SelectableText(shareUrl),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Tamam'),
-              ),
-            ],
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Paylaşım linki oluşturulurken bir hata oluştu')),
-        );
-      }
-    } catch (e) {
-      print('Not paylaşım hatası: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Paylaşım linki oluşturulurken bir hata oluştu')),
-      );
-    }
+    // Davet ekranına yönlendir
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InviteScreen(
+          contentId: widget.noteId,
+          contentType: 'note',
+          contentTitle: _note?.title ?? 'Not',
+        ),
+      ),
+    );
   }
 
   @override

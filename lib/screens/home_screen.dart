@@ -7,6 +7,10 @@ import 'package:uninote/screens/login_screen.dart';
 import 'package:uninote/screens/profile_screen.dart';
 import 'package:uninote/screens/note_detail_screen.dart';
 import 'package:uninote/screens/create_note_screen.dart';
+import 'package:uninote/screens/pdf_list_screen.dart';
+import 'package:uninote/screens/pdf_upload_screen.dart';
+import 'package:uninote/screens/viewed_content_screen.dart';
+import 'package:uninote/screens/invite_access_screen.dart';
 import 'package:uninote/widgets/loading_indicator.dart';
 import 'package:uninote/widgets/note_card.dart';
 import 'package:get_it/get_it.dart';
@@ -193,6 +197,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       }
     }
   }
+  
+  /// PDF ekranlarını açma
+  void _openPDFScreens(bool myPDFs) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PDFListScreen(myPDFs: myPDFs),
+      ),
+    );
+  }
+  
+  /// Yeni PDF yükleme ekranını açma
+  void _openPDFUploadScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PDFUploadScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -297,6 +321,52 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
               ),
         actions: [
+          // PDF butonu
+          PopupMenuButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'PDF İşlemleri',
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'my_pdfs',
+                child: Row(
+                  children: [
+                    Icon(Icons.folder),
+                    SizedBox(width: 8),
+                    Text('PDF\'lerim'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'public_pdfs',
+                child: Row(
+                  children: [
+                    Icon(Icons.public),
+                    SizedBox(width: 8),
+                    Text('Herkese Açık PDF\'ler'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'upload_pdf',
+                child: Row(
+                  children: [
+                    Icon(Icons.upload_file),
+                    SizedBox(width: 8),
+                    Text('PDF Yükle'),
+                  ],
+                ),
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'my_pdfs') {
+                _openPDFScreens(true);
+              } else if (value == 'public_pdfs') {
+                _openPDFScreens(false);
+              } else if (value == 'upload_pdf') {
+                _openPDFUploadScreen();
+              }
+            },
+          ),
           // Arama butonu
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -310,16 +380,67 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             },
           ),
           // Profil butonu
-          IconButton(
+          PopupMenuButton(
             icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              // Profil ekranına yönlendir
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfileScreen(user: _user),
+            tooltip: 'Profil İşlemleri',
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.person),
+                    SizedBox(width: 8),
+                    Text('Profilim'),
+                  ],
                 ),
-              ).then((_) => _loadUserProfile());
+              ),
+              const PopupMenuItem(
+                value: 'viewed_content',
+                child: Row(
+                  children: [
+                    Icon(Icons.visibility),
+                    SizedBox(width: 8),
+                    Text('Görüntülediğim İçerikler'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'invite_access',
+                child: Row(
+                  children: [
+                    Icon(Icons.link),
+                    SizedBox(width: 8),
+                    Text('Davet Bağlantısı ile Erişim'),
+                  ],
+                ),
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'profile') {
+                // Profil ekranına yönlendir
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(user: _user),
+                  ),
+                ).then((_) => _loadUserProfile());
+              } else if (value == 'viewed_content') {
+                // Görüntülenen içerikler ekranına yönlendir
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ViewedContentScreen(),
+                  ),
+                );
+              } else if (value == 'invite_access') {
+                // Davet bağlantısı ile erişim ekranına yönlendir
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const InviteAccessScreen(),
+                  ),
+                );
+              }
             },
           ),
           // Çıkış butonu
@@ -502,6 +623,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),
+            const SizedBox(height: 16),
+            // PDF yükleme butonu
+            OutlinedButton.icon(
+              onPressed: _openPDFUploadScreen,
+              icon: const Icon(Icons.upload_file),
+              label: const Text('PDF Yükle'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
           ],
         ),
       );
@@ -596,10 +727,21 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
             const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: _loadNotes,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Yenile'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _loadNotes,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Yenile'),
+                ),
+                const SizedBox(width: 16),
+                OutlinedButton.icon(
+                  onPressed: () => _openPDFScreens(false),
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('PDF\'lere Bak'),
+                ),
+              ],
             ),
           ],
         ),
@@ -695,12 +837,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
             const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () {
-                _tabController.animateTo(1); // Keşfet tabına git
-              },
-              icon: const Icon(Icons.explore),
-              label: const Text('Keşfet\'e Git'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _tabController.animateTo(1); // Keşfet tabına git
+                  },
+                  icon: const Icon(Icons.explore),
+                  label: const Text('Keşfet\'e Git'),
+                ),
+                const SizedBox(width: 16),
+                OutlinedButton.icon(
+                  onPressed: () => _openPDFScreens(false),
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('PDF\'lere Bak'),
+                ),
+              ],
             ),
           ],
         ),

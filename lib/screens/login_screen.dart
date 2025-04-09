@@ -4,6 +4,7 @@ import 'package:uninote/models/user.dart';
 import 'package:uninote/services/auth_service.dart';
 import 'package:uninote/screens/home_screen.dart';
 import 'package:uninote/screens/register_screen.dart';
+import 'package:uninote/screens/invite_access_screen.dart';
 import 'package:uninote/utils/validators.dart';
 import 'package:uninote/widgets/loading_indicator.dart';
 import 'package:get_it/get_it.dart';
@@ -125,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        // Kayıt ol linki
+                        // Kaydol ve davet bağlantısı ile giriş seçenekleri
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -143,6 +144,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: const Text('Kayıt Ol'),
                             ),
                           ],
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        // Davet bağlantısı ile erişim
+                        Center(
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.link),
+                            label: const Text('Davet Bağlantısı ile Erişim'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const InviteAccessScreen(),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),

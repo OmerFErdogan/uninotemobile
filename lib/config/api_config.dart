@@ -13,8 +13,15 @@ class ApiConfig {
   static const String login = '/login';
   static const String profile = '/profile';
   static const String changePassword = '/change-password';
-  static const String notes = '/notes';
-  static const String pdfs = '/pdfs';
+  
+  // Not ve PDF endpoint'leri için temel URL'ler
+  static const String notesBase = '/notes';
+  static const String pdfsBase = '/pdfs';
+  static const String invitesBase = '/invites';
+  
+  // Geriye dönük uyumluluk için
+  static const String notes = notesBase;
+  static const String pdfs = pdfsBase;
 
   // Hata kodları ve mesajları
   static Map<int, String> errorMessages = {
