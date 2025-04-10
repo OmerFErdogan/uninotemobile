@@ -13,10 +13,10 @@ class PDFDetailScreen extends StatefulWidget {
   final String? inviteToken;
 
   const PDFDetailScreen({
-    Key? key,
+    super.key,
     required this.pdfId,
     this.inviteToken,
-  }) : super(key: key);
+  });
 
   @override
   _PDFDetailScreenState createState() => _PDFDetailScreenState();

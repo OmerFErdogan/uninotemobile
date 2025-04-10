@@ -85,7 +85,7 @@ class CreateInviteRequest {
       String formattedDate = expiresAt!.toUtc().toIso8601String();
       // Eğer Z ile bitmiyorsa, milisaniyeleri temizle ve Z ekle
       if (!formattedDate.endsWith('Z')) {
-        formattedDate = formattedDate.split('.')[0] + 'Z';
+        formattedDate = '${formattedDate.split('.')[0]}Z';
       }
       data['expiresAt'] = formattedDate;
     }
@@ -108,13 +108,48 @@ class InviteValidationResponse {
   });
 
   factory InviteValidationResponse.fromJson(Map<String, dynamic> json) {
-    return InviteValidationResponse(
-      valid: json['valid'] as bool,
-      contentId: json['contentId'] as int?,
-      type: json['type'] as String?,
-      expiresAt: json['expiresAt'] != null 
+    // API dökümantarına göre dönen yapı için alternatif alanlar kontrol edilir
+    
+    // Önce valid alanını kontrol et
+    bool isValid = false;
+    if (json.containsKey('valid')) {
+      isValid = json['valid'] as bool;
+    } else if (json.containsKey('isValid')) {
+      isValid = json['isValid'] as bool;
+    } else if (json.containsKey('isActive')) {
+      // Eğer valid yoksa ama isActive varsa, onu kullan
+      isValid = json['isActive'] as bool;
+    }
+    
+    // Content ID'yi kontrol et
+    int? cId;
+    if (json.containsKey('contentId')) {
+      cId = json['contentId'] as int?;
+    } else if (json.containsKey('id')) {
+      cId = json['id'] as int?;
+    }
+    
+    // Type'i kontrol et
+    String? contentType;
+    if (json.containsKey('type')) {
+      contentType = json['type'] as String?;
+    } else if (json.containsKey('contentType')) {
+      contentType = json['contentType'] as String?;
+    }
+    
+    // ExpiresAt'i kontrol et
+    DateTime? expires;
+    if (json.containsKey('expiresAt')) {
+      expires = json['expiresAt'] != null 
           ? DateTime.parse(json['expiresAt'] as String) 
-          : null,
+          : null;
+    }
+    
+    return InviteValidationResponse(
+      valid: isValid,
+      contentId: cId,
+      type: contentType,
+      expiresAt: expires,
     );
   }
 }

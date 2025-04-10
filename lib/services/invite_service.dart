@@ -180,10 +180,27 @@ class InviteService {
   /// [token] Davet bağlantısı token'ı
   Future<InviteValidationResponse?> validateInvite(String token) async {
     try {
+      // API dokümanlarına göre düzeltilmiş endpoint - /validate/ önekini kaldırdık
       final response = await _apiService.get(
         '${ApiConfig.invitesBase}/$token',
       );
+      
+      // Debug bilgisi - yanıtın yapısını gör
+      if (response.data != null) {
+        if (response.data is String) {
+          try {
+            print('Yanıt JSON parse edilmeye çalışılıyor: ${response.data}');
+          } catch (e) {
+            print('JSON parse hatası: $e');
+          }
+        } else if (response.data is Map) {
+          print('Yanıt Map olarak alındı: ${response.data.keys}');
+        }
+      }
 
+      print('Token doğrulama yanıtı: ${response.statusCode}');
+      print('Yanıt içeriği: ${response.data}');
+      
       if (response.statusCode == 200) {
         if (response.data is String) {
           final jsonData = json.decode(response.data);
@@ -208,10 +225,39 @@ class InviteService {
   /// [token] Davet bağlantısı token'ı
   Future<Note?> getNoteByInvite(String token) async {
     try {
+      // Bu endpoint API dokümanında `GET /api/v1/notes/invite/{token}` olarak tanımlanmış,
+      // bu nedenle doğru formatta kullanıyoruz
+      
+      // Özel headers ekleyelim, belki backend bu headers'ları bekliyor olabilir
+      final Options options = Options(
+        headers: {
+          'X-Invite-Token': token,  // Özel bir header ekleyelim
+          'Accept': 'application/json',
+        },
+      );
+      
+      print('Davet token ile not getirme isteği gönderiliyor. Token: $token');
       final response = await _apiService.get(
         '${ApiConfig.notesBase}/invite/$token',
+        options: options,
       );
 
+      print('Davet token ile not getirme yanıtı: ${response.statusCode}');
+      print('Yanıt içeriği: ${response.data}');
+      
+      // Debug bilgisi - yanıtın yapısını gör
+      if (response.data != null) {
+        if (response.data is String) {
+          try {
+            print('Not yanıtı JSON parse edilmeye çalışılıyor');
+          } catch (e) {
+            print('JSON parse hatası: $e');
+          }
+        } else if (response.data is Map) {
+          print('Not yanıtı Map olarak alındı: ${response.data.keys}');
+        }
+      }
+      
       if (response.statusCode == 200) {
         if (response.data is String) {
           final jsonData = json.decode(response.data);
@@ -236,10 +282,39 @@ class InviteService {
   /// [token] Davet bağlantısı token'ı
   Future<PDF?> getPdfByInvite(String token) async {
     try {
+      // Bu endpoint API dokümanında `GET /api/v1/pdfs/invite/{token}` olarak tanımlanmış,
+      // bu nedenle doğru formatta kullanıyoruz
+      
+      // Özel headers ekleyelim, belki backend bu headers'ları bekliyor olabilir
+      final Options options = Options(
+        headers: {
+          'X-Invite-Token': token,  // Özel bir header ekleyelim
+          'Accept': 'application/json',
+        },
+      );
+      
+      print('Davet token ile PDF getirme isteği gönderiliyor. Token: $token');
       final response = await _apiService.get(
         '${ApiConfig.pdfsBase}/invite/$token',
+        options: options,
       );
 
+      print('Davet token ile PDF getirme yanıtı: ${response.statusCode}');
+      print('Yanıt içeriği: ${response.data}');
+      
+      // Debug bilgisi - yanıtın yapısını gör
+      if (response.data != null) {
+        if (response.data is String) {
+          try {
+            print('PDF yanıtı JSON parse edilmeye çalışılıyor');
+          } catch (e) {
+            print('JSON parse hatası: $e');
+          }
+        } else if (response.data is Map) {
+          print('PDF yanıtı Map olarak alındı: ${response.data.keys}');
+        }
+      }
+      
       if (response.statusCode == 200) {
         if (response.data is String) {
           final jsonData = json.decode(response.data);

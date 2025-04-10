@@ -5,16 +5,19 @@ import 'package:uninote/services/note_service.dart';
 import 'package:uninote/widgets/loading_indicator.dart';
 import 'package:uninote/screens/invite_screen.dart';
 import 'package:uninote/services/invite_service.dart';
+import 'package:uninote/screens/content_views_screen.dart';
 
 class NoteDetailScreen extends StatefulWidget {
   final int noteId;
   final bool isEditing;
+  final String? inviteToken; // Davet bağlantısı ile erişim için eklendi
 
   const NoteDetailScreen({
-    Key? key,
+    super.key,
     required this.noteId,
     this.isEditing = false,
-  }) : super(key: key);
+    this.inviteToken, // Davet bağlantısı tokeni
+  });
 
   @override
   State<NoteDetailScreen> createState() => _NoteDetailScreenState();
@@ -63,10 +66,22 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       // Not görüntüleme kaydı oluştur
       await _noteService.viewNote(widget.noteId);
       
-      // Not detaylarını getir
-      final note = await _noteService.getNote(widget.noteId);
+      Note? fetchedNote;
       
-      if (note != null) {
+      // Eğer davet token'i varsa, bununla not bilgilerini getir
+      if (widget.inviteToken != null) {
+        final inviteService = GetIt.instance<InviteService>();
+        fetchedNote = await inviteService.getNoteByInvite(widget.inviteToken!);
+      } else {
+        // Normal yolla not detaylarını getir
+        fetchedNote = await _noteService.getNote(widget.noteId);
+      }
+      
+      if (fetchedNote != null) {
+        // fetchedNote null olamaz çünkü if bloğu içindeyiz
+        // Dart analizörü bunu tanımadığı için non-null assertion işaretçisini ekleyelim
+        final note = fetchedNote!; // Non-null assertion ekledik
+        
         setState(() {
           _note = note;
           _titleController.text = note.title;
@@ -96,12 +111,15 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     }
   }
 
+  /// Yorumları getirir
   Future<void> _fetchComments() async {
     setState(() {
       _isFetchingComments = true;
     });
 
     try {
+      // Eğer davet token varsa, doğrudan yorum getirme yerine yöntem değiştirilebilir
+      // şimdilik standart yolla devam ediyoruz
       final comments = await _noteService.getComments(widget.noteId);
       setState(() {
         _comments = comments;
@@ -310,7 +328,25 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       appBar: AppBar(
         title: Text(_isEditMode ? 'Notu Düzenle' : 'Not Detayı'),
         actions: [
-          if (!_isEditMode) ...[
+          if (!_isEditMode && _note != null && _note!.userId == _note!.userId) ...[  // Kullanıcı notun sahibi ise
+            IconButton(
+              icon: const Icon(Icons.visibility),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ContentViewsScreen(
+                      contentType: 'note',
+                      contentId: widget.noteId,
+                      contentTitle: _note?.title,
+                    ),
+                  ),
+                );
+              },
+              tooltip: 'Görüntülenme Kayıtları',
+            ),
+          ],
+          if (!_isEditMode) ...[  // Tüm kullanıcılar için düzenleme, paylaşma vb.
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {

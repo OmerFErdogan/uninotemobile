@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:uninote/models/note.dart';
 import 'package:uninote/services/api_service.dart';
-import 'package:uninote/utils/model_adapter.dart';
 
 /// Not işlemlerini yöneten servis
 class NoteService {

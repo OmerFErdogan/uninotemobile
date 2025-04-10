@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import '../models/pdf.dart';
 import '../services/pdf_service.dart';
 import '../widgets/loading_indicator.dart';
@@ -12,7 +12,7 @@ import '../utils/validators.dart';
 class PDFUploadScreen extends StatefulWidget {
   final PDF? pdf; // Düzenleme modu için
 
-  const PDFUploadScreen({Key? key, this.pdf}) : super(key: key);
+  const PDFUploadScreen({super.key, this.pdf});
 
   @override
   _PDFUploadScreenState createState() => _PDFUploadScreenState();

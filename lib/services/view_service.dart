@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:uninote/models/view.dart';
+import 'package:uninote/models/view.dart' as view_model;
 import 'package:uninote/services/api_service.dart';
 import 'package:uninote/config/api_config.dart';
 
@@ -56,7 +56,7 @@ class ViewService {
   /// [contentId] İçerik ID'si
   /// [limit] Sayfa başına kayıt sayısı (varsayılan: 10)
   /// [offset] Atlanacak kayıt sayısı (varsayılan: 0)
-  Future<ViewListResponse?> getContentViews(
+  Future<view_model.ViewsResponse?> getContentViews(
     String type,
     int contentId, {
     int limit = 10,
@@ -74,9 +74,9 @@ class ViewService {
       if (response.statusCode == 200) {
         if (response.data is String) {
           final jsonData = json.decode(response.data);
-          return ViewListResponse.fromJson(jsonData);
+          return view_model.ViewsResponse.fromJson(jsonData);
         } else if (response.data is Map) {
-          return ViewListResponse.fromJson(Map<String, dynamic>.from(response.data));
+          return view_model.ViewsResponse.fromJson(Map<String, dynamic>.from(response.data));
         }
       }
       
@@ -94,7 +94,7 @@ class ViewService {
   /// 
   /// [limit] Sayfa başına kayıt sayısı (varsayılan: 10)
   /// [offset] Atlanacak kayıt sayısı (varsayılan: 0)
-  Future<ViewListResponse?> getUserViews({
+  Future<view_model.ViewsResponse?> getUserViews({
     int limit = 10,
     int offset = 0,
   }) async {
@@ -110,9 +110,9 @@ class ViewService {
       if (response.statusCode == 200) {
         if (response.data is String) {
           final jsonData = json.decode(response.data);
-          return ViewListResponse.fromJson(jsonData);
+          return view_model.ViewsResponse.fromJson(jsonData);
         } else if (response.data is Map) {
-          return ViewListResponse.fromJson(Map<String, dynamic>.from(response.data));
+          return view_model.ViewsResponse.fromJson(Map<String, dynamic>.from(response.data));
         }
       }
       
@@ -143,9 +143,9 @@ class ViewService {
       if (response.statusCode == 200) {
         if (response.data is String) {
           final jsonData = json.decode(response.data);
-          return ViewCheckResponse.fromJson(jsonData).viewed;
+          return view_model.ViewCheckResponse.fromJson(jsonData).viewed;
         } else if (response.data is Map) {
-          return ViewCheckResponse.fromJson(Map<String, dynamic>.from(response.data)).viewed;
+          return view_model.ViewCheckResponse.fromJson(Map<String, dynamic>.from(response.data)).viewed;
         }
       }
       

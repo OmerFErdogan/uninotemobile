@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:uninote/models/invite.dart';
-import 'package:uninote/models/note.dart';
-import 'package:uninote/models/pdf.dart';
+
 import 'package:uninote/services/invite_service.dart';
 import 'package:uninote/screens/note_detail_screen.dart';
-import 'package:uninote/screens/pdf_detail_screen.dart';
+import 'package:uninote/screens/pdf_viewer_screen.dart';
 import 'package:uninote/widgets/loading_indicator.dart';
 
 /// Davet bağlantısı ile not veya PDF'e erişim ekranı
 class InviteAccessScreen extends StatefulWidget {
   final String? token; // Opsiyonel - Doğrudan token verilebilir
 
-  const InviteAccessScreen({Key? key, this.token}) : super(key: key);
+  const InviteAccessScreen({super.key, this.token});
 
   @override
   State<InviteAccessScreen> createState() => _InviteAccessScreenState();
@@ -61,6 +59,7 @@ class _InviteAccessScreenState extends State<InviteAccessScreen> {
     
     // URL'den token çıkar
     final extractedToken = _extractTokenFromInput(token);
+    print('Extract edilen token: $extractedToken');
     
     setState(() {
       _isLoading = true;
@@ -74,6 +73,7 @@ class _InviteAccessScreenState extends State<InviteAccessScreen> {
       });
       
       final validationResponse = await _inviteService.validateInvite(extractedToken);
+      print('Doğrulama yanıtı: $validationResponse');
       
       setState(() {
         _isValidating = false;
@@ -84,81 +84,115 @@ class _InviteAccessScreenState extends State<InviteAccessScreen> {
           _isLoading = false;
           _errorMessage = 'Geçersiz veya süresi dolmuş davet bağlantısı';
         });
+        print('Doğrulama başarısız: ${validationResponse?.valid}');
         return;
       }
       
-      // İçerik türüne göre işleme devam et
+      // Yanıt geçerli ama eksik bilgi içeriyorsa ek bilgileri debugla
+      if (validationResponse.contentId == null) {
+        print('Uyarı: Doğrulama yanıtında contentId eksik!');
+      }
+      
+      if (validationResponse.type == null) {
+        print('Uyarı: Doğrulama yanıtında type eksik!');
+      }
+      
+      // Backend'in değişikliği ile ilgili olabilecek alternatif yol - direkt token'la içeriğini almaya çalış
+      // Doğrulama yanıtındaki içerik türünü kontrol edelim
+      print('Doğrudan token ile içerik erişimi deneniyor: $extractedToken');
+      print('Doğrulamada dönen içerik türü: ${validationResponse.type}');
+      
+      // içerik türüne göre doğru endpoint'i çağıralım
       if (validationResponse.type == 'note') {
-        final note = await _inviteService.getNoteByInvite(extractedToken);
-        
-        if (note != null) {
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NoteDetailScreen(noteId: note.id!),
-              ),
-            );
+        try {
+          final note = await _inviteService.getNoteByInvite(extractedToken);
+          print('Not getirme yanıtı: $note');
+          
+          if (note != null) {
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NoteDetailScreen(
+                    noteId: note.id!,
+                    inviteToken: extractedToken, // Davet token'ını geçir
+                  ),
+                ),
+              );
+            }
+            return; // Not bulundu, işlem tamamlandı
           }
-        } else {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'Not bulunamadı veya erişim reddedildi';
-          });
+        } catch (e) {
+          print('Not getirme hatası: $e');
         }
       } else if (validationResponse.type == 'pdf') {
-        final pdf = await _inviteService.getPdfByInvite(extractedToken);
-        
-        if (pdf != null) {
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PDFDetailScreen(pdfId: pdf.id!),
-              ),
-            );
+        try {
+          final pdf = await _inviteService.getPdfByInvite(extractedToken);
+          print('PDF getirme yanıtı: $pdf');
+          
+          if (pdf != null) {
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PDFViewerScreen(pdfId: pdf.id!),
+                ),
+              );
+            }
+            return; // PDF bulundu, işlem tamamlandı
           }
-        } else {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'PDF bulunamadı veya erişim reddedildi';
-          });
+        } catch (e) {
+          print('PDF getirme hatası: $e');
         }
       } else {
+        // Bilinmeyen içerik türü
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Bilinmeyen içerik türü';
+          _errorMessage = 'Bilinmeyen içerik türü: ${validationResponse.type}';
         });
+        return;
       }
+      
+      // Buraya geldiysek, ne not ne de PDF bulunamadı
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Davet bağlantısı geçerli ancak içerik bulunamadı veya erişim reddedildi';
+      });
     } catch (e) {
       print('İçerik erişim hatası: $e');
       setState(() {
         _isLoading = false;
-        _errorMessage = 'İçeriğe erişilirken bir hata oluştu';
+        _errorMessage = 'İçeriğe erişilirken bir hata oluştu: ${e.toString()}';
       });
     }
   }
   
   /// URL veya kullanıcı girdisinden token'ı çıkarır
   String _extractTokenFromInput(String input) {
-    // Token saf haliyle girildiyse direk döndür
-    if (!input.contains('/')) {
-      return input;
-    }
-    
-    // URL formatından token'ı çıkar
-    final uri = Uri.tryParse(input);
-    if (uri != null) {
-      // notes/invite/{token} veya pdfs/invite/{token} formatı
-      final pathSegments = uri.pathSegments;
-      if (pathSegments.length >= 3 && pathSegments[pathSegments.length - 2] == 'invite') {
-        return pathSegments.last;
+    // Base64 formatında token, URL'de '=' içerebilir
+    // Önce URL formatında mı kontrol et
+    if (input.startsWith('http://') || input.startsWith('https://')) {
+      try {
+        final uri = Uri.parse(input);
+        
+        // URL'in son kısmını al
+        final pathSegments = uri.pathSegments;
+        if (pathSegments.isNotEmpty) {
+          return pathSegments.last;
+        }
+      } catch (e) {
+        print('URL ayrıştırma hatası: $e');
       }
     }
     
-    // Eğer yukarıdaki şablonlara uymuyorsa, / ile bölüp son parçayı al
-    final parts = input.split('/');
-    return parts.last;
+    // Tüm URL'i almak yerine sadece token kısmını almaya çalış
+    if (input.contains('/')) {
+      // Son bölümü al
+      return input.split('/').last;
+    }
+    
+    // Zaten token biçimindeyse olduğu gibi döndür
+    return input;
   }
   
   /// Kullanıcıdan aldığı token'i temizler ve URL formatını temizler

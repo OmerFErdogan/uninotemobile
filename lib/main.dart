@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:uninote/services/api_service.dart';
 import 'package:uninote/services/auth_service.dart';
 import 'package:uninote/services/note_service.dart';
@@ -21,6 +22,9 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Türkçe tarih formatını yükle
+  await initializeDateFormatting('tr_TR', null);
 
   // Bağımlılıkları kaydet
   _setupDependencies();

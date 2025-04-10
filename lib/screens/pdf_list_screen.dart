@@ -9,7 +9,7 @@ import 'pdf_upload_screen.dart';
 class PDFListScreen extends StatefulWidget {
   final bool myPDFs; // true: Kullanıcının kendi PDF'leri, false: Herkese açık PDF'ler
 
-  const PDFListScreen({Key? key, this.myPDFs = false}) : super(key: key);
+  const PDFListScreen({super.key, this.myPDFs = false});
 
   @override
   _PDFListScreenState createState() => _PDFListScreenState();

@@ -7,10 +7,10 @@ class NoteCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const NoteCard({
-    Key? key,
+    super.key,
     required this.note,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

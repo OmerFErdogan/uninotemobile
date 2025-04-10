@@ -13,11 +13,11 @@ class InviteScreen extends StatefulWidget {
   final String contentTitle;
 
   const InviteScreen({
-    Key? key,
+    super.key,
     required this.contentId,
     required this.contentType,
     required this.contentTitle,
-  }) : super(key: key);
+  });
 
   @override
   State<InviteScreen> createState() => _InviteScreenState();
@@ -596,7 +596,7 @@ class _InviteScreenState extends State<InviteScreen> {
                                     : null,
                               ),
                               if (isActive)
-                                ButtonBar(
+                                OverflowBar(
                                   alignment: MainAxisAlignment.end,
                                   children: [
                                     TextButton.icon(

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-/// İçerik görüntüleme kaydı modelini temsil eden sınıf
-class ContentView extends Equatable {
+/// İçerik görüntüleme kaydını temsil eden sınıf
+class View extends Equatable {
   final int? id;
   final int? userId;
   final String? username;
@@ -11,7 +11,7 @@ class ContentView extends Equatable {
   final String type; // 'note' veya 'pdf'
   final DateTime viewedAt;
 
-  const ContentView({
+  const View({
     this.id,
     this.userId,
     this.username,
@@ -22,9 +22,9 @@ class ContentView extends Equatable {
     required this.viewedAt,
   });
 
-  /// JSON'dan ContentView nesnesine dönüştürme
-  factory ContentView.fromJson(Map<String, dynamic> json) {
-    return ContentView(
+  /// JSON'dan View nesnesine dönüştürme
+  factory View.fromJson(Map<String, dynamic> json) {
+    return View(
       id: json['id'] as int?,
       userId: json['userId'] as int?,
       username: json['username'] as String?,
@@ -32,11 +32,13 @@ class ContentView extends Equatable {
       lastName: json['lastName'] as String?,
       contentId: json['contentId'] as int,
       type: json['type'] as String,
-      viewedAt: DateTime.parse(json['viewedAt'] as String),
+      viewedAt: json['viewedAt'] != null
+          ? DateTime.parse(json['viewedAt'] as String)
+          : DateTime.now(),
     );
   }
 
-  /// ContentView nesnesinden JSON'a dönüştürme
+  /// View nesnesinden JSON'a dönüştürme
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -52,26 +54,75 @@ class ContentView extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    userId,
-    username,
-    firstName,
-    lastName,
-    contentId,
-    type,
-    viewedAt,
-  ];
-
-  /// Kullanıcının tam adını döndürür
+        id,
+        userId,
+        username,
+        firstName,
+        lastName,
+        contentId,
+        type,
+        viewedAt,
+      ];
+      
+  /// Görüntüleyen kullanıcının tam adını döndürür
   String? get fullName {
     if (firstName != null && lastName != null) {
       return '$firstName $lastName';
+    } else if (firstName != null) {
+      return firstName;
+    } else if (lastName != null) {
+      return lastName;
     }
-    return null;
+    return username;
   }
 }
 
-/// Görüntüleme kontrolü yanıtı
+/// Görüntüleme listesi yanıtını temsil eden sınıf
+class ViewsResponse {
+  final List<View> views;
+  final Pagination pagination;
+
+  ViewsResponse({
+    required this.views,
+    required this.pagination,
+  });
+
+  factory ViewsResponse.fromJson(Map<String, dynamic> json) {
+    return ViewsResponse(
+      views: (json['views'] as List)
+          .map((view) => View.fromJson(view as Map<String, dynamic>))
+          .toList(),
+      pagination: Pagination.fromJson(json['pagination'] as Map<String, dynamic>),
+    );
+  }
+}
+
+/// Sayfalama bilgilerini temsil eden sınıf
+class Pagination {
+  final int limit;
+  final int offset;
+
+  Pagination({
+    required this.limit,
+    required this.offset,
+  });
+
+  factory Pagination.fromJson(Map<String, dynamic> json) {
+    return Pagination(
+      limit: json['limit'] as int,
+      offset: json['offset'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'limit': limit,
+      'offset': offset,
+    };
+  }
+}
+
+/// Görüntüleme durumu kontrolü yanıtını temsil eden sınıf
 class ViewCheckResponse {
   final bool viewed;
 
@@ -82,26 +133,6 @@ class ViewCheckResponse {
   factory ViewCheckResponse.fromJson(Map<String, dynamic> json) {
     return ViewCheckResponse(
       viewed: json['viewed'] as bool,
-    );
-  }
-}
-
-/// Görüntüleme listesi yanıtı
-class ViewListResponse {
-  final List<ContentView> views;
-  final Map<String, dynamic> pagination;
-
-  ViewListResponse({
-    required this.views,
-    required this.pagination,
-  });
-
-  factory ViewListResponse.fromJson(Map<String, dynamic> json) {
-    return ViewListResponse(
-      views: (json['views'] as List)
-          .map((item) => ContentView.fromJson(Map<String, dynamic>.from(item)))
-          .toList(),
-      pagination: Map<String, dynamic>.from(json['pagination']),
     );
   }
 }

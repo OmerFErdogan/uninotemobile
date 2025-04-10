@@ -7,9 +7,9 @@ class CreateNoteScreen extends StatefulWidget {
   final Note? existingNote; // Düzenleme için mevcut not
   
   const CreateNoteScreen({
-    Key? key, 
+    super.key, 
     this.existingNote,
-  }) : super(key: key);
+  });
 
   @override
   State<CreateNoteScreen> createState() => _CreateNoteScreenState();
